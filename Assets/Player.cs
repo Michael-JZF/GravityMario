@@ -11,14 +11,19 @@ public class Player : MonoBehaviour
     public float fallGravity = 1.64f;
 
     [Header("Move")]
-    public float currentSpeedX = 0f;
+    public float currentSpeedX;
 
-    public float runSpeedX = 4.0f;
+    public float runSpeedX = 30;
 
     [Header("Ground Detection")]
     public LayerMask groundLayers;
     public Vector3 rGroundoffset = new Vector3(0.5f, -1.02f, 0f);
     private Vector3 lGroundoffset => new Vector3(-rGroundoffset.x, rGroundoffset.y, rGroundoffset.z);
+
+    [Header("Instant Move")]
+    public Vector3 touchPosition = new Vector3(33, -100, -1);
+    public Vector3 targetPosition = new Vector3(192f, 4f, -1f);
+    public float disThreshold = 4.0f;
 
     private Rigidbody2D rigid;
 
@@ -27,6 +32,7 @@ public class Player : MonoBehaviour
     private bool isJumpHeld;
     private bool isOnGround;
     private bool isJumpRelased;
+    private bool isFlag;
 
 
 
@@ -35,6 +41,7 @@ public class Player : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         isJumpRelased = true;
+        isFlag = false;
     }
 
 
@@ -51,6 +58,20 @@ public class Player : MonoBehaviour
 
         isOnGround = Physics2D.OverlapPoint((Vector2)(transform.position + rGroundoffset), groundLayers) || 
                      Physics2D.OverlapPoint((Vector2)(transform.position + lGroundoffset), groundLayers);
+
+        if(Vector3.Distance(transform.position, touchPosition) < disThreshold)
+        {
+            transform.position = targetPosition;
+        }
+
+        if(transform.position.x >=103 && transform.position.x <= 175)
+        {
+            isFlag = true;
+        }
+        else
+        {
+             isFlag=false;
+        }
     }
 
     private void FixedUpdate()
@@ -79,9 +100,16 @@ public class Player : MonoBehaviour
         }
 
         vel.y = velY;
-
-        currentSpeedX = runSpeedX;
-        vel.x = inputValx * currentSpeedX;
+        currentSpeedX = 5;
+        if (isFlag)
+        {
+            vel.x = 15;
+        } else
+        {
+            vel.x = inputValx * currentSpeedX;
+        }
+        
+        
         rigid.velocity = vel;
     }
 }
